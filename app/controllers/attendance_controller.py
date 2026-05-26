@@ -4,10 +4,13 @@ from flask import request
 from flask import redirect
 from flask import url_for
 
+from datetime import datetime
+
 from app.extensions import db
 
 from app.models.student_model import Student
 from app.models.attendance_model import Attendance
+
 
 attendance_bp = Blueprint(
     "attendance",
@@ -59,37 +62,63 @@ def check_in():
     if not student:
         return "Student not found"
 
+    # DETERMINE STATUS
+    now = datetime.now()
+
+    status = "Present"
+
+    if now.hour > 8 or (
+        now.hour == 8 and now.minute > 30
+    ):
+        status = "Late"
+
     attendance = Attendance(
-        student_id=student.id
+        student_id=student.id,
+        status=status
     )
 
     db.session.add(attendance)
     db.session.commit()
 
-    return redirect(url_for("attendance.view_attendance"))
+    return redirect(
+        url_for("attendance.view_attendance")
+    )
 
 
 # VIEW ATTENDANCE
 @attendance_bp.route("/attendance")
 def view_attendance():
 
-    records = Attendance.query.all()
+    search_query = request.args.get(
+        "search",
+        ""
+    )
+
+    status_filter = request.args.get(
+        "status",
+        ""
+    )
+
+    query = Attendance.query.join(Student)
+
+    # SEARCH FILTER
+    if search_query:
+
+        query = query.filter(
+            (Student.name.ilike(f"%{search_query}%")) |
+            (Student.student_id.ilike(f"%{search_query}%"))
+        )
+
+    # STATUS FILTER
+    if status_filter:
+
+        query = query.filter(
+            Attendance.status == status_filter
+        )
+
+    records = query.all()
 
     return render_template(
         "dashboard.html",
         records=records
-    )
-
-
-# DELETE RECORD
-@attendance_bp.route("/delete/<int:id>")
-def delete_record(id):
-
-    record = Attendance.query.get_or_404(id)
-
-    db.session.delete(record)
-    db.session.commit()
-
-    return redirect(
-        url_for("attendance.view_attendance")
     )
