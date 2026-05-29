@@ -1,6 +1,13 @@
-venv/
+
 config.py
 __pycache__/
 *.pyc
 .vscode/
-.env
+.env# Python Virtual Environments
+.virt/
+venv/
+.venv/
+ENV/
+
+# Database files
+*.db
