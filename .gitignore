@@ -1,48 +1,13 @@
-# Python cache
-__pycache__/
-*.py[cod]
-
-# Virtual environments
+# Python Virtual Environments
+.virt/
 venv/
-env/
-virt/
 .venv/
+ENV/
 
-# Environment variables
-.env
-
-# Flask instance folder
-instance/
-
-# SQLite database
+# Database files
 *.db
 *.sqlite3
 
-# VS Code settings
-.vscode/
-
-# PyCharm
-.idea/
-
-# macOS files
-.DS_Store
-
-# Windows files
-Thumbs.db
-
-# Logs
-*.log
-
-# Build files
-build/
-dist/
-
-# Coverage reports
-htmlcov/
-.coverage
-
-# Pytest cache
-.pytest_cache/
-
-# Node modules (if using frontend tools)
-node_modules/
+# Python cache folders
+__pycache__/
+*.pyc
