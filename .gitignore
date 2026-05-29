@@ -1,4 +1,9 @@
-# Python Virtual Environments
+
+config.py
+__pycache__/
+*.pyc
+.vscode/
+.env# Python Virtual Environments
 .virt/
 venv/
 .venv/
@@ -6,8 +11,3 @@ ENV/
 
 # Database files
 *.db
-*.sqlite3
-
-# Python cache folders
-__pycache__/
-*.pyc
