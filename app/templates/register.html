@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Register Administrator | System Access{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl w-full min-h-[500px] flex flex-col md:flex-row transform transition-all duration-300 hover:shadow-2xl">
+    
+    <div class="md:w-1/2 bg-gradient-to-br from-teal-600 to-emerald-700 p-12 text-white flex flex-col justify-between">
+        <div>
+            <div class="h-10 w-10 bg-white/10 rounded-lg flex items-center justify-center font-bold text-xl tracking-wider backdrop-blur-sm">🛡️</div>
+            <h2 class="text-3xl font-bold mt-8 tracking-tight">Establish Node.</h2>
+            <p class="text-teal-100/80 mt-2 text-sm max-w-xs leading-relaxed">Register an authenticated profile to oversee database schemas, register personnel, and track time metrics.</p>
+        </div>
+        <div class="text-xs text-teal-200/50 mt-8 md:mt-0">
+            &copy; 2026 Security Registry Module.
+        </div>
+    </div>
+
+    <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+        <div class="mb-8">
+            <h3 class="text-2xl font-bold text-slate-800">Admin Registration</h3>
+            <p class="text-slate-400 text-sm mt-1">Configure a unique identity access point below.</p>
+        </div>
+
+        <form action="{{ url_for('auth.register') }}" method="POST" class="space-y-5">
+            <div>
+                <label for="username" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Desired Username</label>
+                <input type="text" name="username" id="username" required
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white transition-colors duration-200 text-sm text-slate-700 placeholder-slate-400"
+                    placeholder="Choose an account alias">
+            </div>
+
+            <div>
+                <label for="password" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Secure Password</label>
+                <input type="password" name="password" id="password" required
+                    class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:border-teal-500 focus:bg-white transition-colors duration-200 text-sm text-slate-700 placeholder-slate-400"
+                    placeholder="Create a strong keyphrase">
+        <button type="button" 
+                onclick="const input = document.getElementById('password'); if(input.type === 'password') { input.type = 'text'; this.textContent = '👁️'; this.classList.add('text-blue-400'); } else { input.type = 'password'; this.textContent = '🔒'; this.classList.remove('text-blue-400'); }"
+                class="text-sm opacity-60 hover:opacity-100 text-amber-500 peer-focus:text-blue-400 transition-all duration-200 cursor-pointer select-none focus:outline-none pr-1">
+            🔒
+        </button>
+            </div>
+
+            <button type="submit" 
+                class="w-full bg-teal-600 hover:bg-teal-700 text-white font-medium py-3 rounded-xl transition-all duration-200 shadow-md shadow-teal-200 hover:shadow-lg focus:outline-none active:scale-[0.98] text-sm mt-2">
+                Generate Admin Profile
+            </button>
+        </form>
+
+        <p class="text-center text-sm text-slate-500 mt-8">
+            Already have an active workspace? 
+            <a href="{{ url_for('auth.login') }}" class="text-teal-600 font-medium hover:underline">Log in here</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
