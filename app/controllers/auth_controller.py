@@ -1,5 +1,5 @@
 
-from flask import Blueprint, request, render_template, redirect, url_for, flash
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session
 from flask_login import login_user, logout_user, login_required
 
 # Import extensions only
@@ -56,3 +56,61 @@ def logout():
     logout_user()
     flash("You have been logged out.", "info")
     return redirect(url_for("home.home"))
+
+
+@auth_bp.route("/student/register", methods=["GET", "POST"])
+def student_register():
+    from app.models.student_model import Student  # Localized import to stop loops
+
+    if request.method == "POST":
+        name = request.form.get("name")
+        student_id = request.form.get("student_id")
+        course = request.form.get("course")
+        password = request.form.get("password")
+        
+        # Check against the Student table ONLY
+        existing_student = Student.query.filter_by(student_id=student_id).first()
+        if existing_student:
+            flash("This Student ID is already registered.", "warning")
+            return redirect(url_for("auth.student_register"))
+            
+        # Create student profile directly with password hashing
+        new_student = Student(name=name, student_id=student_id, course=course)
+        new_student.set_password(password)
+        
+        db.session.add(new_student)
+        db.session.commit()
+        
+        flash("Student registration successful. Please log in.", "success")
+        return redirect(url_for("auth.student_login"))
+        
+    return render_template("student_register.html")
+
+@auth_bp.route("/student/login", methods=["GET", "POST"])
+def student_login():
+    from app.models.student_model import Student  # Localized import
+
+    if request.method == "POST":
+        student_id = request.form.get("username")  # Pulled from form input field
+        password = request.form.get("password")
+        
+        student = Student.query.filter_by(student_id=student_id).first()
+        if student and student.check_password(password):
+            # Save student session token completely isolated from Admin cookies
+            session["student_id"] = student.student_id
+            session["student_name"] = student.name
+            
+            flash(f"Welcome back, {student.name}!", "success")
+            return redirect(url_for("attendance.view_attendance"))
+        else:
+            flash("Invalid Student ID or password.", "danger")
+            
+    return render_template("student_login.html")
+
+@auth_bp.route("/student/logout")
+def student_logout():
+    # Clear out specific student tokens
+    session.pop("student_id", None)
+    session.pop("student_name", None)
+    flash("You have logged out of the student portal.", "info")
+    return redirect(url_for("home.splash"))

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Student Login{% endblock %}
+
+{% block content %}
+<div class="bg-slate-950/40 border border-white/10 rounded-3xl shadow-[0_12px_40px_0_rgba(0,0,0,0.6)] backdrop-blur-xl overflow-hidden max-w-4xl w-full min-h-[480px] flex flex-col md:flex-row transform transition-all duration-300">
+    
+    <div class="md:w-1/2 bg-gradient-to-br from-blue-600/20 to-indigo-700/30 p-12 text-white flex flex-col justify-between border-b md:border-b-0 md:border-r border-white/10">
+        <div>
+            <div class="h-10 w-10 bg-white/10 rounded-xl flex items-center justify-center font-bold text-xl tracking-wider backdrop-blur-sm shadow-md">🎓</div>
+            <h2 class="text-3xl font-bold mt-8 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-300">Welcome Back, Student.</h2>
+            <p class="text-slate-400 mt-3 text-sm max-w-xs leading-relaxed">
+                Log back in to view your current status logs, check your live registration profile information, and review past entries.
+            </p>
+        </div>
+        <div class="text-xs text-slate-500 mt-8 md:mt-0 tracking-wide">
+            &copy; 2026 Student Terminal Node.
+        </div>
+    </div>
+
+    <div class="md:w-1/2 p-8 md:p-12 flex flex-col justify-center bg-slate-900/20">
+        <div class="mb-8">
+            <h3 class="text-2xl font-bold text-white tracking-wide">Student Access Link</h3>
+            <p class="text-slate-400 text-sm mt-1">Please type your login credentials below.</p>
+        </div>
+
+        <form action="{{ url_for('auth.student_login') }}" method="POST" class="space-y-6">
+            
+            <div class="relative border-b border-white/20 focus-within:border-blue-400 transition-colors duration-300 pb-2">
+                <label for="username" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Student ID / Username</label>
+                <div class="flex items-center justify-between">
+                    <input type="text" name="username" id="username" required
+                           class="w-full bg-transparent text-white placeholder-slate-600 focus:outline-none text-base tracking-wide pr-4"
+                           placeholder="Enter Student ID">
+                    <span class="text-sm opacity-40 text-white">✉</span>
+                </div>
+            </div>
+
+            <div class="relative border-b border-white/20 focus-within:border-blue-400 transition-colors duration-300 pb-2">
+    <label for="password" class="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Password</label>
+    <div class="flex items-center justify-between">
+        <input type="password" name="password" id="password" required
+               class="peer w-full bg-transparent text-white placeholder-slate-600 focus:outline-none text-base tracking-wide pr-4"
+               placeholder="••••••••">
+        
+        <button type="button" 
+                onclick="const input = document.getElementById('password'); if(input.type === 'password') { input.type = 'text'; this.textContent = '👁️'; this.classList.add('text-blue-400'); } else { input.type = 'password'; this.textContent = '🔒'; this.classList.remove('text-blue-400'); }"
+                class="text-sm opacity-60 hover:opacity-100 text-amber-500 peer-focus:text-blue-400 transition-all duration-200 cursor-pointer select-none focus:outline-none pr-1">
+            🔒
+        </button>
+    </div>
+</div>
+
+            <button type="submit" 
+                    class="w-full py-3.5 bg-white hover:bg-slate-100 text-slate-950 font-bold tracking-wide rounded-full transition-all duration-200 transform active:scale-[0.99] shadow-xl text-center text-sm mt-4 cursor-pointer">
+                Sign In As Student
+            </button>
+        </form>
+
+        <p class="text-center text-sm text-slate-400 mt-8 tracking-wide">
+            Need an account? 
+            <a href="{{ url_for('auth.student_register') }}" class="text-white font-bold hover:underline ml-1">Register your student ID</a>
+        </p>
+    </div>
+</div>
+{% endblock %}
