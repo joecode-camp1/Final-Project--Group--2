@@ -2,13 +2,13 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from datetime import datetime
 from sqlalchemy import func
 from app.extensions import db
-from app.models.student_model import Student
-from app.models.attendance_model import Attendance
 
 attendance_bp = Blueprint("attendance", __name__)
 
 @attendance_bp.route("/register", methods=["GET", "POST"])
 def register_student():
+    from app.models.student_model import Student  # Localized import
+
     if request.method == "POST":
         name = request.form.get("name")
         student_id = request.form.get("student_id")
@@ -30,6 +30,9 @@ def register_student():
 
 @attendance_bp.route("/check-in", methods=["POST"])
 def check_in():
+    from app.models.student_model import Student      # Localized import
+    from app.models.attendance_model import Attendance  # Localized import
+
     student_id = request.form.get("student_id")
     student = Student.query.filter_by(student_id=student_id).first()
 
@@ -37,7 +40,6 @@ def check_in():
         flash("Student not found.", "danger")
         return redirect(url_for("attendance.view_attendance"))
 
-    # Block multiple daily records
     today = datetime.now().date()
     existing_attendance = Attendance.query.filter(
         Attendance.student_id == student.id,
@@ -48,7 +50,6 @@ def check_in():
         flash("You have already checked in today.", "warning")
         return redirect(url_for("attendance.view_attendance"))
 
-    # Parse execution time thresholds
     now = datetime.now()
     status = "Present"
     if now.hour > 8 or (now.hour == 8 and now.minute > 30):
@@ -63,6 +64,9 @@ def check_in():
 
 @attendance_bp.route("/attendance")
 def view_attendance():
+    from app.models.student_model import Student      # Localized import
+    from app.models.attendance_model import Attendance  # Localized import
+
     search_query = request.args.get('search', '')
     status_filter = request.args.get('status', '')
     page = request.args.get('page', 1, type=int)
@@ -79,7 +83,6 @@ def view_attendance():
     if status_filter:
         query = query.filter(Attendance.status == status_filter)
 
-    # Integrated Pagination
     pagination = query.paginate(page=page, per_page=per_page, error_out=False)
     records = pagination.items
 
@@ -87,6 +90,8 @@ def view_attendance():
 
 @attendance_bp.route("/delete/<int:id>")
 def delete_record(id):
+    from app.models.attendance_model import Attendance  # Localized import
+    
     record = Attendance.query.get_or_404(id)
     db.session.delete(record)
     db.session.commit()
