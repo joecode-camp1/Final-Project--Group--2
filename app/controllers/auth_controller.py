@@ -1,17 +1,17 @@
+
 from flask import Blueprint, request, render_template, redirect, url_for, flash
 from flask_login import login_user, logout_user, login_required
-from app.extensions import db, login_manager
-from app.models.user_model import User
+
+# Import extensions only
+from app.extensions import db, login_manager, bcrypt
 
 auth_bp = Blueprint("auth", __name__)
 
-# Fixed user loader scoping position
-@login_manager.user_loader
-def load_user(user_id):
-    return db.session.get(User, int(user_id))
-
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
+    # Local import prevents duplicate tracking errors during application boot
+    from app.models.user_model import User 
+
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
@@ -33,6 +33,9 @@ def register():
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
+    # Local import safely keeps it scoped to this function runtime
+    from app.models.user_model import User 
+
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
