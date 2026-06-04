@@ -24,7 +24,8 @@ def create_app():
 
     # 3. Import model and set up user loader safely nested inside the function
     from app.models.user_model import User
-
+    from app.models.student_model import Student
+    from app.models.attendance_model import Attendance
     @login_manager.user_loader
     def load_user(user_id):
         return db.session.get(User, int(user_id))

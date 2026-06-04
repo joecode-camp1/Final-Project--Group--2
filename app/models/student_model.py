@@ -14,7 +14,7 @@ class Student(db.Model):
 
     attendances = db.relationship(
         "Attendance",
-        backref="student",
+        backref="Student",
         lazy=True
     )
 
