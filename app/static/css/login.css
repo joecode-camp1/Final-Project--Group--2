@@ -1,0 +1,129 @@
+/* LOGIN PAGE WRAPPER */
+.login-section {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background: linear-gradient(135deg, #0b1b4d, #1e3a8a);
+    position: relative;
+    overflow: hidden;
+}
+
+/* glowing circles background */
+.login-section::before,
+.login-section::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    background: white;
+    opacity: 0.08;
+    filter: blur(2px);
+}
+
+/* top glow */
+.login-section::before {
+    width: 350px;
+    height: 350px;
+    top: -120px;
+    left: -120px;
+}
+
+/* bottom glow */
+.login-section::after {
+    width: 250px;
+    height: 250px;
+    bottom: -80px;
+    right: -80px;
+}
+
+/* LOGIN BOX */
+.login-container {
+    position: relative;
+    z-index: 2;
+
+    width: 360px;
+    padding: 40px;
+
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    color: white;
+}
+
+/* HEADER */
+.login-header h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.login-header p {
+    color: #cbd5e1;
+    margin-bottom: 20px;
+}
+
+/* INPUTS */
+.login-form input {
+    width: 100%;
+    padding: 12px;
+    margin-top: 8px;
+    margin-bottom: 15px;
+
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+
+    color: white;
+    outline: none;
+
+    transition: 0.3s;
+}
+
+.login-form input:focus {
+    border-color: white;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* BUTTON */
+.btn {
+    width: 100%;
+    padding: 12px;
+
+    background: white;
+    color: #0f172a;
+
+    border: none;
+    border-radius: 8px;
+
+    cursor: pointer;
+    font-weight: bold;
+
+    transition: 0.3s;
+}
+
+.btn:hover {
+    background: #cbd5e1;
+}
+.login-contact {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.login-contact p {
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.login-contact a {
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-contact a:hover {
+    text-decoration: underline;
+}

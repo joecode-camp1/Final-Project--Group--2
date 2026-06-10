@@ -3,24 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Splash Screen</title>
+    <title>Attendance Management Application</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/splash.css') }}">
 </head>
 <body>
-    <div class="splash container">   
-        <h1 Welcome </h1>
-        <p class="splash-description">Discover amazing features and enjoy a seamless experience.</p>
-        <a href="/home" class="splash-button">Get Started</a>
 
-
-
-    </div>
-
-
-   
-
-
-
-
-
+    <div class="splash-container">
+        <div class="logo-container"> 
+            <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" class="logo">  
+        </div>
+        
+        <h1 class="title">Attendance Management Application</h1>
+        <p class="subtitle">Efficient . Reliable . Accessible</p>
+        
+        <div class="loader"></div>
+    <script>
+setTimeout(() => {
+    window.location.href = "{{ url_for('home.index') }}";
+}, 4000);
+</script>
+    </div> <script src="{{ url_for('static', filename='js/splash.js') }}"></script>
 </body>
 </html>
