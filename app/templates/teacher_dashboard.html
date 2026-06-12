@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}Instructor Dashboard{% endblock %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
+
+<div class="w-full max-w-6xl space-y-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="bg-slate-950/40 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-xl flex items-center justify-between">
+            <div>
+                <p class="text-xs font-mono uppercase tracking-wider text-slate-400">Live Active Students</p>
+                <p class="text-3xl font-black text-emerald-400 mt-1">{{ active_count }}</p>
+            </div>
+            <span class="text-2xl p-3 bg-emerald-500/10 rounded-xl">⚡</span>
+        </div>
+        <div class="bg-slate-950/40 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-xl flex items-center justify-between">
+            <div>
+                <p class="text-xs font-mono uppercase tracking-wider text-slate-400">Total System Entries</p>
+                <p class="text-3xl font-black text-white mt-1">{{ active_logs|length }}</p>
+            </div>
+            <span class="text-2xl p-3 bg-slate-800 rounded-xl">📊</span>
+        </div>
+        <div class="bg-slate-950/40 border border-white/10 rounded-2xl p-6 backdrop-blur-xl shadow-xl flex items-center justify-between sm:col-span-2 lg:col-span-1">
+            <div>
+                <p class="text-xs font-mono uppercase tracking-wider text-slate-400">Flagged Exceptions</p>
+                <p class="text-3xl font-black text-amber-400 mt-1">{{ flagged_count }}</p>
+            </div>
+            <span class="text-2xl p-3 bg-amber-500/10 rounded-xl">⚠️</span>
+        </div>
+    </div>
+
+    <div class="bg-slate-950/40 border border-white/10 rounded-3xl p-8 backdrop-blur-xl shadow-2xl space-y-4">
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-white tracking-wide">Instructor Workspace</h2>
+                <p class="text-slate-400 text-xs">Review system state records and geolocation metrics feeds.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+                <div class="flex gap-2">
+                    <button onclick="exportToExcel()" 
+                            class="flex-1 sm:flex-none px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600 border border-emerald-500/30 hover:border-emerald-400 text-emerald-300 hover:text-white rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer">
+                        📥 Export Excel
+                    </button>
+                    <button onclick="exportToPDF()" 
+                            class="flex-1 sm:flex-none px-4 py-2 bg-rose-600/20 hover:bg-rose-600 border border-rose-500/30 hover:border-rose-400 text-rose-300 hover:text-white rounded-xl text-xs font-semibold tracking-wide transition-all cursor-pointer">
+                        📄 Export PDF
+                    </button>
+                </div>
+                
+                <input type="text" id="table-search" onkeyup="filterAuditLogs()"
+                       placeholder="Filter by Name or Course Module..." 
+                       class="px-4 py-2 bg-slate-900/60 border border-white/10 rounded-xl focus:outline-none focus:border-blue-500 text-xs text-white placeholder:text-slate-600 transition-all w-full lg:w-64">
+            </div>       
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-white/5 text-xs">
+            <table class="w-full text-left border-collapse" id="audit-table">
+                <thead>
+                    <tr class="bg-slate-900/60 text-slate-400 font-semibold uppercase tracking-wider border-b border-white/10">
+                        <th class="p-4">Student Name</th>
+                        <th class="p-4">Course Track</th>
+                        <th class="p-4">Status</th>
+                        <th class="p-4">Time Sign In</th>
+                        <th class="p-4">Time Sign Out</th>
+                        <th class="p-4">Verification Geolocation</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-300">
+                    {% for record in active_logs %}
+                    <tr class="hover:bg-white/[0.01] transition-colors table-data-row">
+                        <td class="p-4 font-bold text-white student-name-cell">{{ record.student_profile.name }}</td>
+                        <td class="p-4 text-slate-400 student-course-cell">{{ record.student_profile.course }}</td>
+                        <td class="p-4">
+                            {% if record.time_out %}
+                            <span class="px-2 py-0.5 bg-slate-800 text-slate-400 rounded">Inactive</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded">Active</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4 font-mono text-slate-400">{{ record.time_in.strftime('%H:%M:%S (%m-%d)') }}</td>
+                        <td class="p-4 font-mono text-slate-400">{{ record.time_out.strftime('%H:%M:%S') if record.time_out else '—' }}</td>
+                        <td class="p-4">
+                            {% if record.location_before_signin == 'Location Denied' or record.location_before_signin == 'Unknown' %}
+                            <span class="px-2 py-0.5 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded font-mono">⚠️ {{ record.location_before_signin }}</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 bg-blue-500/5 text-blue-300 border border-blue-500/10 rounded font-mono">📍 {{ record.location_before_signin }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-slate-500">No diagnostic audit lines registered in the runtime data workspace layers.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Live table search filtering algorithm
+function filterAuditLogs() {
+    const query = document.getElementById('table-search').value.toLowerCase();
+    const rows = document.querySelectorAll('.table-data-row');
+    
+    rows.forEach(row => {
+        const name = row.querySelector('.student-name-cell').textContent.toLowerCase();
+        const course = row.querySelector('.student-course-cell').textContent.toLowerCase();
+        
+        if (name.includes(query) || course.includes(query)) {
+            row.style.display = "";
+        } else {
+            row.style.display = "none";
+        }
+    });
+}
+
+// Excel download pipeline
+function exportToExcel() {
+    const table = document.getElementById("audit-table");
+    const workbook = XLSX.utils.table_to_book(table, { sheet: "Attendance Logs" });
+    XLSX.writeFile(workbook, `Attendance_Report_${new Date().toISOString().slice(0,10)}.xlsx`);
+}
+
+// Landscape PDF document download pipeline
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4');
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(15);
+    doc.text("INSTRUCTOR ATTENDANCE SYSTEM DIAGNOSTIC REPORT", 14, 15);
+    
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text(`Generated Timestamp: ${new Date().toLocaleString()}`, 14, 21);
+
+    doc.autoTable({
+        html: '#audit-table',
+        startY: 26,
+        theme: 'grid',
+        styles: { fontSize: 8.5, font: 'helvetica' },
+        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' }, // Tailwind slate-900 style
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        margin: { top: 30, right: 14, bottom: 15, left: 14 }
+    });
+
+    doc.save(`Attendance_Report_${new Date().toISOString().slice(0,10)}.pdf`);
+}
+</script>
+{% endblock %}
