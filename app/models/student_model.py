@@ -1,3 +1,4 @@
+
 from app.extensions import db, bcrypt
 
 class Student(db.Model):
@@ -5,16 +6,17 @@ class Student(db.Model):
     __table_args__ = {'extend_existing': True}
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
     student_id = db.Column(db.String(50), unique=True, nullable=False)
+    name = db.Column(db.String(100), nullable=False)
     course = db.Column(db.String(100), nullable=False)
     
-    # NEW: Secure password field for student access isolated from admins
+    # Secure password field for student access isolated from admins
     password = db.Column(db.String(200), nullable=False)
 
+    # LOWERCASED BACKREF: Connects smoothly to your template files without errors
     attendances = db.relationship(
         "Attendance",
-        backref="Student",
+        backref="student_profile",
         lazy=True
     )
 

@@ -1,6 +1,9 @@
 
+from os import name
+
 from flask import Blueprint, request, render_template, redirect, url_for, flash, session
 from flask_login import login_user, logout_user, login_required
+from app.models.student_model import Student
 
 # Import extensions only
 from app.extensions import db, login_manager, bcrypt
@@ -44,7 +47,7 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             flash("Logged in successfully!", "success")
-            return redirect(url_for("home.home"))
+            return redirect(url_for('dashboard.teacher_dashboard'))
         else:
             flash("Invalid username or password.", "danger")
             
@@ -58,33 +61,46 @@ def logout():
     return redirect(url_for("home.home"))
 
 
-@auth_bp.route("/student/register", methods=["GET", "POST"])
+@auth_bp.route('/student/register', methods=['GET', 'POST'])
 def student_register():
-    from app.models.student_model import Student  # Localized import to stop loops
-
-    if request.method == "POST":
-        name = request.form.get("name")
-        student_id = request.form.get("student_id")
-        course = request.form.get("course")
-        password = request.form.get("password")
+    if request.method == 'POST':
+        username = request.form.get('username')
+        student_id = request.form.get('student_id')
+        course = request.form.get('course')
+        password = request.form.get('password')
         
-        # Check against the Student table ONLY
+        # Guard clause: Check if student already exists
         existing_student = Student.query.filter_by(student_id=student_id).first()
         if existing_student:
-            flash("This Student ID is already registered.", "warning")
-            return redirect(url_for("auth.student_register"))
+            flash('This Student ID is already registered.', 'danger')
+            return redirect(url_for('auth.student_register'))
             
-        # Create student profile directly with password hashing
-        new_student = Student(name=name, student_id=student_id, course=course)
-        new_student.set_password(password)
+        # 1. Create and stage the new student record
+        new_student = Student(
+            student_id=student_id,
+            name=username,
+            course=course,
+            password=password # Note: Consider using generate_password_hash(password) for security!
         
+        )
+
+        # Salt and hash the password before saving to SQLite
+        new_student.set_password(password)
+
         db.session.add(new_student)
         db.session.commit()
         
-        flash("Student registration successful. Please log in.", "success")
-        return redirect(url_for("auth.student_login"))
+        # 2. AUTOMATIC LOGIN: Store identity tracking variables into the session
+        session['student_id'] = new_student.student_id
+        session['user_name'] = new_student.name
         
-    return render_template("student_register.html")
+        # Send a welcoming flash confirmation
+        flash(f'Account created successfully! Welcome to your terminal, {new_student.name}.', 'success')
+        
+        # 3. REDIRECT: Push them directly onto the student control node dashboard
+        return redirect(url_for('dashboard.student_dashboard'))
+        
+    return render_template('student_register.html')
 
 @auth_bp.route("/student/login", methods=["GET", "POST"])
 def student_login():
@@ -96,15 +112,16 @@ def student_login():
         
         student = Student.query.filter_by(student_id=student_id).first()
         if student and student.check_password(password):
+            
             # Save student session token completely isolated from Admin cookies
             session["student_id"] = student.student_id
             session["student_name"] = student.name
             
             flash(f"Welcome back, {student.name}!", "success")
-            return redirect(url_for("attendance.view_attendance"))
+            return redirect(url_for("dashboard.student_dashboard"))
         else:
             flash("Invalid Student ID or password.", "danger")
-            
+        
     return render_template("student_login.html")
 
 @auth_bp.route("/student/logout")

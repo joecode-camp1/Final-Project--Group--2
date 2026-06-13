@@ -17,10 +17,13 @@ def create_app():
     from app.controllers.home_controller import home_bp
     from app.controllers.auth_controller import auth_bp
     from app.controllers.attendance_controller import attendance_bp
+    from app.controllers.dashboard_controller import dashboard_bp
+    
 
     app.register_blueprint(home_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(attendance_bp)
+    app.register_blueprint(dashboard_bp)
 
     # 3. Import model and set up user loader safely nested inside the function
     from app.models.user_model import User
