@@ -1,5 +1,6 @@
-/* LOGIN PAGE WRAPPER */
-.login-section {
+
+/* AUTH PAGE WRAPPER (LOGIN + SIGNUP) */
+.auth-section {
     height: 100vh;
     display: flex;
     justify-content: center;
@@ -11,8 +12,8 @@
 }
 
 /* glowing circles background */
-.login-section::before,
-.login-section::after {
+.auth-section::before,
+.auth-section::after {
     content: "";
     position: absolute;
     border-radius: 50%;
@@ -21,24 +22,22 @@
     filter: blur(2px);
 }
 
-/* top glow */
-.login-section::before {
+.auth-section::before {
     width: 350px;
     height: 350px;
     top: -120px;
     left: -120px;
 }
 
-/* bottom glow */
-.login-section::after {
+.auth-section::after {
     width: 250px;
     height: 250px;
     bottom: -80px;
     right: -80px;
 }
 
-/* LOGIN BOX */
-.login-container {
+/* AUTH BOX */
+.auth-container {
     position: relative;
     z-index: 2;
 
@@ -56,18 +55,20 @@
 }
 
 /* HEADER */
-.login-header h1 {
+.auth-header h1 {
     font-size: 2rem;
     margin-bottom: 10px;
 }
 
-.login-header p {
+.auth-header p {
     color: #cbd5e1;
     margin-bottom: 20px;
 }
 
 /* INPUTS */
-.login-form input {
+/* INPUTS & DROPDOWN */
+.auth-form input,
+.auth-form select {
     width: 100%;
     padding: 12px;
     margin-top: 8px;
@@ -83,7 +84,19 @@
     transition: 0.3s;
 }
 
-.login-form input:focus {
+.auth-form input:focus,
+.auth-form select:focus {
+    border-color: white;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+/* DROPDOWN OPTIONS */
+.auth-form select option {
+    background: #1e3a8a;
+    color: white;
+}
+
+.auth-form input:focus {
     border-color: white;
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
@@ -108,22 +121,52 @@
 .btn:hover {
     background: #cbd5e1;
 }
-.login-contact {
+
+/* CONTACT / EXTRA LINKS */
+.auth-contact {
     text-align: center;
     margin-top: 20px;
 }
 
-.login-contact p {
+.auth-contact p {
     color: #666;
     margin-bottom: 8px;
 }
 
-.login-contact a {
-    color: #2563eb;
-    font-weight: 600;
+.auth-contact a,
+.auth-extra a {
+    color:#ffff;    /* bright blue for visibility */
+    font-weight: 700;
     text-decoration: none;
+    transition: 0.2s ease;
 }
 
-.login-contact a:hover {
+/* HOVER EFFECT */
+.auth-extra a:hover {
+    color: #60a5fa;
     text-decoration: underline;
+}
+
+.auth-contact a:hover,
+.auth-extra a:hover {
+    text-decoration: underline;
+}
+.alert-message{
+    background:#ffe5e5;
+    color:#c62828;
+    padding:12px;
+    border-radius:8px;
+    margin-bottom:15px;
+    text-align:center;
+}
+
+.alert-message a{
+    color:#0b57d0;
+    font-weight:600;
+    text-decoration:none;
+    margin-left:5px;
+}
+
+.alert-message a:hover{
+    text-decoration:underline;
 }

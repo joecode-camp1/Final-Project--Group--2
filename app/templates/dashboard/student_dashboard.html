@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<nav class="navbar">
+    <div class="logo">
+        <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo">
+    </div>
+
+<ul>
+    <li><a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a></li>
+    <li><a href="{{ url_for('home.index') }}">Home</a></li>
+    <li><a href="#attendance">Attendance</a></li>
+    <li><a href="#weekly">Weekly Summary</a></li>
+    <li><a href="#chat">Chat</a></li>
+
+    {% if role == 'teacher' %}
+    <li><a href="#manage">Manage Students</a></li>
+    <li><a href="#session">Attendance Session</a></li>
+    {% endif %}
+
+    <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
+</ul>
+
+
+</nav>
+
+<!-- MAIN DASHBOARD -->
+
+<main class="dashboard-container">
+
+<!-- HEADER -->
+<section class="dashboard-header">
+    <h2>Welcome, {{ user.name }}</h2>
+    <p id="datetime"></p>
+</section>
+
+<!-- STATS CARDS -->
+<section class="stats">
+    <div class="card">Total Classes: {{ stats.total }}</div>
+    <div class="card">Present: {{ stats.present }}</div>
+    <div class="card">Absent: {{ stats.absent }}</div>
+    <div class="card">Attendance: {{ stats.percent }}%</div>
+</section>
+
+<!-- NOTIFICATIONS -->
+<section class="notifications">
+    <h3>Notifications</h3>
+    <ul>
+        {% for note in notifications %}
+            <li>{{ note }}</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<!-- WEEKLY SUMMARY -->
+<section id="weekly" class="weekly-summary">
+    <h3>Weekly Attendance</h3>
+
+    <table>
+        <tr>
+            <th>Day</th>
+            <th>Status</th>
+        </tr>
+
+        {% for day in weekly %}
+        <tr>
+            <td>{{ day.name }}</td>
+            <td class="{{ day.status }}">{{ day.status }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+
+<!-- TEACHER SECTION -->
+{% if role == 'teacher' %}
+<section id="manage" class="teacher-panel">
+    <h3>Student Management</h3>
+
+    <input type="text" placeholder="Search student...">
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>ID</th>
+            <th>Attendance</th>
+        </tr>
+
+        {% for student in students %}
+        <tr>
+            <td>{{ student.name }}</td>
+            <td>{{ student.id }}</td>
+            <td>{{ student.attendance }}%</td>
+        </tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section id="session">
+    <h3>Attendance Session</h3>
+    <button>Start Session</button>
+    <button>End Session</button>
+</section>
+{% endif %}
+
+<!-- CHAT SYSTEM -->
+<section id="chat" class="chat-box">
+    <h3>Chat</h3>
+
+    <div class="chat-messages">
+        {% for msg in messages %}
+            <div class="msg {{ msg.role }}">
+                <b>{{ msg.sender }}:</b> {{ msg.text }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="POST" action="{{ url_for('home.send_message') }}">
+        <input type="text" name="message" placeholder="Type message..." required>
+        <button type="submit">Send</button>
+    </form>
+</section>
+
+
+</main>
+
+<!-- SCRIPT: live date/time -->
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

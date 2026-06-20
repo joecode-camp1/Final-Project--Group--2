@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, url_for,request, redirect, session
 
 # Assuming you are using Blueprints based on your file structure
 home_bp = Blueprint('home', __name__)
@@ -22,6 +22,14 @@ def about():
 @home_bp.route('/help')
 def help_page():
     return render_template('help.html')
+@home_bp.route('/send-message', methods=['POST'])
+def send_message():
+    message = request.form['message']
+
+    # temporary logic (no database yet)
+    print("Message received:", message)
+
+    return redirect(url_for('dashboard.dashboard'))
 
 
 

@@ -1,0 +1,212 @@
+{% extends "dashboard/base_admin_dashboard.html" %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_teacher.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ================= PAGE HEADER ================= -->
+<div class="page-header">
+    <h2>Attendance Analytics</h2>
+    <p>Track attendance trends across time</p>
+</div>
+
+<!-- ================= CONTROLS BAR ================= -->
+<section class="controls-bar">
+
+    <!-- DATE FILTER -->
+    <div class="filter-group">
+        <label>From</label>
+        <input type="date" id="fromDate">
+
+        <label>To</label>
+        <input type="date" id="toDate">
+    </div>
+
+    <!-- RANGE TOGGLE -->
+    <div class="toggle-group">
+        <button class="toggle-btn active" data-range="day">Day</button>
+        <button class="toggle-btn" data-range="week">Week</button>
+        <button class="toggle-btn" data-range="month">Month</button>
+    </div>
+
+    <!-- EXPORT BUTTONS -->
+    <div class="export-group">
+        <button class="btn export">📤 Export PDF</button>
+        <button class="btn download">⬇ Download PDF</button>
+    </div>
+
+</section>
+
+<!-- ================= STATS WIDGETS ================= -->
+<section class="extra-widgets">
+
+    <div class="widget-card">
+        <span class="widget-icon">📊</span>
+        <h3>Attendance Rate</h3>
+        <p>{{ attendance_rate | default(0) }}%</p>
+    </div>
+
+    <div class="widget-card">
+        <span class="widget-icon">✅</span>
+        <h3>Present Today</h3>
+        <p>{{ present_today | default(0) }}</p>
+    </div>
+
+    <div class="widget-card">
+        <span class="widget-icon">🚫</span>
+        <h3>Absent Today</h3>
+        <p>{{ absent_today | default(0) }}</p>
+    </div>
+
+    <div class="widget-card">
+        <span class="widget-icon">⏰</span>
+        <h3>Late Arrivals</h3>
+        <p>{{ late_arrivals_count | default(0) }}</p>
+    </div>
+
+</section>
+
+<!-- ================= MAIN GRID ================= -->
+<section class="dashboard-grid">
+
+    <!-- CHART -->
+    <div class="card large-card">
+
+        <div class="card-header">
+            <h3>Attendance Trend</h3>
+            <span class="sub">Day / Week / Month View</span>
+        </div>
+
+        <div class="chart-wrap">
+            <canvas id="attendanceChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- SIDE SUMMARY -->
+    <div class="card side-card">
+
+        <h3>Summary</h3>
+
+        <div class="summary-box">
+            <p><strong>Best Day:</strong> {{ best_day | default('N/A') }}</p>
+            <p><strong>Worst Day:</strong> {{ worst_day | default('N/A') }}</p>
+            <p><strong>Average:</strong> {{ attendance_rate | default(0) }}%</p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ================= ACTIVITY ================= -->
+<section class="activity-section">
+
+    <h3>Recent Attendance Activity</h3>
+
+    <div class="activity-list">
+
+        {% if recent_activity %}
+            {% for item in recent_activity %}
+            <div class="activity-item">
+
+                <span>{{ item.text }}</span>
+
+                <span class="{{ 'status-positive' if item.status == 'positive' else 'status-negative' }}">
+                    {{ 'Present' if item.status == 'positive' else 'Absent' }}
+                </span>
+
+                <small>{{ item.time_ago }}</small>
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="empty-state">No recent activity</p>
+        {% endif %}
+
+    </div>
+
+</section>
+
+{% endblock %}
+
+<!-- ================= JS ================= -->
+{% block extra_js %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const ctx = document.getElementById("attendanceChart");
+
+    if (!ctx || !window.ATTENDANCE_CHART_DATA) return;
+
+    // gradient fill so the line is visible & on-brand against the white chart card
+    const chartCtx = ctx.getContext("2d");
+    const gradient = chartCtx.createLinearGradient(0, 0, 0, 320);
+    gradient.addColorStop(0, "rgba(59, 130, 246, 0.35)");
+    gradient.addColorStop(1, "rgba(59, 130, 246, 0)");
+
+    let chart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: window.ATTENDANCE_CHART_DATA.labels,
+            datasets: [{
+                label: "Attendance %",
+                data: window.ATTENDANCE_CHART_DATA.values,
+                borderColor: "#2563eb",
+                backgroundColor: gradient,
+                pointBackgroundColor: "#2563eb",
+                pointBorderColor: "#ffffff",
+                pointBorderWidth: 1.5,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                borderWidth: 2.5,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: { color: "#1a2c3d" }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: "#5b6878" },
+                    grid: { color: "#eef1f5" }
+                },
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { color: "#5b6878" },
+                    grid: { color: "#eef1f5" }
+                }
+            }
+        }
+    });
+
+    // ================= RANGE TOGGLE =================
+    document.querySelectorAll(".toggle-btn").forEach(btn => {
+        btn.addEventListener("click", function () {
+
+            document.querySelectorAll(".toggle-btn").forEach(b => b.classList.remove("active"));
+            this.classList.add("active");
+
+            const range = this.dataset.range;
+            console.log("Selected range:", range);
+
+            // later: fetch(`/attendance?range=${range}`)
+        });
+    });
+
+});
+</script>
+
+{% endblock %}
